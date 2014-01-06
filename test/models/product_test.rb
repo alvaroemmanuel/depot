@@ -38,7 +38,8 @@ class ProductTest < ActiveSupport::TestCase
   end
 
   test "image url" do
-    ok = %w{ fred.gif fred.jpg fred.png FRED.JPG FRED.Jpg http://a.b.c/x/y/z/fred.gif }
+    ok = %w{ fred.gif fred.jpg fred.png FRED.JPG FRED.Jpg
+              http://a.b.c/x/y/z/fred.gif }
     bad = %w{ fred.doc fred.gif/more fred.gif.more }
 
     ok.each do |name|
@@ -67,6 +68,25 @@ class ProductTest < ActiveSupport::TestCase
                           image_url: "fred.gif"
 
     assert product.invalid?
-    assert_equal [I18n.translate('errors.messages.taken')], product.errors[:title]
+    assert_equal [I18n.translate('errors.messages.taken')],
+                  product.errors[:title]
+  end
+
+  test "product title must be at least 10 chars long" do
+    bad_product = Product.new title: "Bad title",
+                          description: "yyy",
+                          price: 1,
+                          image_url: "fred.gif"
+
+    assert bad_product.invalid?
+    assert_equal ["title should be at least 10 chars long"],
+                  bad_product.errors[:title]
+
+    good_product = Product.new title: "This is a good title",
+                          description: "yyy",
+                          price: 1,
+                          image_url: "fred.gif"
+
+    assert good_product.valid?, "title should be at least 10 chars long"
   end
 end
